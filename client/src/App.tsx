@@ -23,25 +23,15 @@ export const App = () => {
 
   const handleSubmit = async (prompt: string) => {
     try {
-      setIsLoading(true);
       setMessages((p) => [...p, { author: Author.User, text: prompt }]);
+      setIsLoading(true);
 
-      let completionWithoutGodDamnClosure = "";
-      //   await streamCompletion(prompt, onChunk);
-      await streamCompletion(prompt, (chunk: string) => {
-        completionWithoutGodDamnClosure += chunk;
-        setCompletion((p) => p + chunk);
-      });
+      const text = await streamCompletion(prompt, onChunk);
 
-      console.log("Setting agent message");
-      setMessages((p) => [
-        ...p,
-        { author: Author.Agent, text: completionWithoutGodDamnClosure },
-      ]);
+      setMessages((p) => [...p, { author: Author.Agent, text }]);
     } catch (error) {
       console.error(error);
     } finally {
-      console.log("Clearing completion");
       setCompletion("");
       setIsLoading(false);
     }
