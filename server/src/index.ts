@@ -1,12 +1,13 @@
 import { createOllama } from "ollama-ai-provider";
-import { streamText } from "ai";
+import { type Message, streamText } from "ai";
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
-import chalk, { ColorName } from "chalk";
+import chalk, { type ColorName } from "chalk";
 
-const MODEL_NAME = "llama3.2";
+// const MODEL_NAME = "llama3.2";
 // const MODEL_NAME = "tinyllama";
+const MODEL_NAME = "phi4";
 
 const model = createOllama()(MODEL_NAME);
 
@@ -20,9 +21,32 @@ const createLogger =
 const Log = {
   server: createLogger("green", "server"),
   error: createLogger("red", "error"),
+  user: createLogger("magenta", "user"),
   agent: createLogger("cyan", MODEL_NAME),
   // agent: createLogger("cyan", "agent"),
 };
+
+class MessageHistory {
+  private _messages: Message[] = [];
+
+  get messages(): Message[] {
+    return this._messages;
+  }
+
+  addAssistantMessage(content: string) {
+    this.addMessage(content, "assistant");
+  }
+
+  addUserMessage(content: string) {
+    this.addMessage(content, "user");
+  }
+
+  private addMessage(content: string, role: Message["role"]) {
+    this._messages.push({ id: crypto.randomUUID(), role, content });
+  }
+}
+
+const history = new MessageHistory();
 
 const PORT = 3001;
 const app = express();
@@ -42,20 +66,23 @@ app.get("/api/v1/chat", async (req, res) => {
   }
 
   try {
-    Log.agent(`Processing: "${prompt}"...`);
+    Log.user(prompt);
+    history.addUserMessage(prompt);
 
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     res.setHeader("Transfer-Encoding", "chunked");
 
     Log.agent(`Thinking...\n`);
 
-    const result = streamText({ model, prompt });
+    const result = streamText({ model, messages: history.messages });
 
     for await (const chunk of result.textStream) {
       res.write(chunk);
     }
 
-    Log.agent(await result.text);
+    const text = await result.text;
+    Log.agent(text);
+    history.addAssistantMessage(text);
 
     res.end();
     return;
