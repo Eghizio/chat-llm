@@ -31,7 +31,9 @@ export const App = () => {
 
   return (
     <main style={css.app}>
-      <h1>LLM Stream Chat</h1>
+      <header style={css.header}>
+        <h1 style={{ margin: 0, fontSize: "x-large" }}>LLM Stream Chat</h1>
+      </header>
 
       <section style={css.chat}>
         <PromptForm onSubmit={handleSubmit} />
@@ -54,12 +56,20 @@ export const App = () => {
 
 const css = {
   app: { width: "100vw", height: "100vh" },
+  header: {
+    padding: "0.5rem",
+    height: "5%",
+    // backgroundColor: "lightskyblue",
+    backgroundColor: "var(--color)",
+    display: "flex",
+    alignItems: "center",
+  },
   chat: {
     display: "flex",
     flexDirection: "column-reverse",
     justifyContent: "space-between",
     gap: "0.5rem",
-    // height: "100%",
+    height: "95%",
   },
   messages: {
     padding: "1rem",
@@ -67,6 +77,6 @@ const css = {
     flexDirection: "column-reverse",
     gap: "1rem",
     overflowY: "scroll",
-    height: "20rem",
+    height: "90%",
   },
 } satisfies Record<string, React.CSSProperties>;

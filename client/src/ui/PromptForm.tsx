@@ -33,6 +33,16 @@ const css = {
     alignItems: "center",
     gap: "0.5rem",
   },
-  input: { height: "3rem", flex: "1" },
-  btn: { padding: "1rem 2rem" },
+  input: { padding: "0.5rem", height: "3rem", fontSize: "x-large", flex: "1" },
+  btn: {
+    cursor: "pointer",
+    fontSize: "large",
+    fontWeight: "bold",
+    padding: "1rem 2rem",
+    height: "3rem",
+    // backgroundColor: "lightskyblue",
+    backgroundColor: "var(--color)",
+    border: "none",
+    borderRadius: "4px",
+  },
 } satisfies Record<string, React.CSSProperties>;

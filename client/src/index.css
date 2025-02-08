@@ -1,3 +1,15 @@
+:root {
+  --gold: #f8e231;
+  --yellow: #f7dc6f;
+  --neutral: #f5f5f5;
+  --beige: #f0e4cc;
+  --coral: #ff99cc;
+  --salmon: #fa8072;
+  --green: #34c759;
+
+  --color: var(--coral);
+}
+
 * {
   box-sizing: border-box;
 }
