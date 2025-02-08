@@ -1,13 +1,8 @@
 import { useState } from "react";
-import { PromptForm } from "./PromptForm";
-import { streamCompletion } from "./api";
-
-enum Author {
-  User = "User",
-  Agent = "Agent",
-}
-
-type Message = { author: Author; text: string };
+import { PromptForm } from "./ui/PromptForm";
+import { MessageBubble } from "./ui/MessageBubble";
+import { streamCompletion } from "./lib/api";
+import { Author, type Message } from "./lib/model";
 
 export const App = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -15,11 +10,8 @@ export const App = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const onChunk = (chunk: string) => {
-    // console.log(chunk);
     setCompletion((p) => p + chunk);
   };
-
-  console.log({ completion });
 
   const handleSubmit = async (prompt: string) => {
     try {
@@ -38,26 +30,43 @@ export const App = () => {
   };
 
   return (
-    <main>
-      <h1>Chat</h1>
+    <main style={css.app}>
+      <h1>LLM Stream Chat</h1>
 
-      <PromptForm onSubmit={handleSubmit} />
+      <section style={css.chat}>
+        <PromptForm onSubmit={handleSubmit} />
 
-      {messages.map(({ author, text }, index) => (
-        <div key={index}>
-          <strong>{author}:</strong>
-          <pre>{text}</pre>
+        <div style={css.messages}>
+          {completion ? (
+            <MessageBubble author={Author.Agent} text={completion} />
+          ) : isLoading ? (
+            <p>Thinking...</p>
+          ) : null}
+
+          {messages.toReversed().map(({ author, text }, index) => (
+            <MessageBubble key={index} author={author} text={text} />
+          ))}
         </div>
-      ))}
-
-      {completion ? (
-        <div>
-          <strong>{Author.Agent}:</strong>
-          <pre>{completion}</pre>
-        </div>
-      ) : isLoading ? (
-        <p>Thinking...</p>
-      ) : null}
+      </section>
     </main>
   );
 };
+
+const css = {
+  app: { width: "100vw", height: "100vh" },
+  chat: {
+    display: "flex",
+    flexDirection: "column-reverse",
+    justifyContent: "space-between",
+    gap: "0.5rem",
+    // height: "100%",
+  },
+  messages: {
+    padding: "1rem",
+    display: "flex",
+    flexDirection: "column-reverse",
+    gap: "1rem",
+    overflowY: "scroll",
+    height: "20rem",
+  },
+} satisfies Record<string, React.CSSProperties>;
