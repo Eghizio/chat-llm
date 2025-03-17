@@ -5,9 +5,12 @@ import cors from "cors";
 import morgan from "morgan";
 import chalk, { type ColorName } from "chalk";
 
+// Todo: Pick a model via client.
 // const MODEL_NAME = "llama3.2";
-// const MODEL_NAME = "tinyllama";
-const MODEL_NAME = "phi4";
+const MODEL_NAME = "tinyllama";
+// const MODEL_NAME = "phi4";
+// const MODEL_NAME = "deepseek-r1";
+// const MODEL_NAME = "mistral";
 
 const model = createOllama()(MODEL_NAME);
 
@@ -76,9 +79,7 @@ app.get("/api/v1/chat", async (req, res) => {
 
     const result = streamText({ model, messages: history.messages });
 
-    for await (const chunk of result.textStream) {
-      res.write(chunk);
-    }
+    result.pipeTextStreamToResponse(res);
 
     const text = await result.text;
     Log.agent(text);
@@ -97,4 +98,5 @@ app.listen(PORT, () => {
   Log.server(new Date().toISOString());
   Log.server(`Server running on port ${PORT}`);
   Log.server(`http://localhost:${PORT}`);
+  Log.server(`Using "${MODEL_NAME}"`);
 });
